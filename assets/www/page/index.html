@@ -9,10 +9,12 @@
 
     <script type="text/javascript" charset="utf-8" src="../js/jq.mobi.min.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/cordova-1.7.0.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/NetDroidPlugin.js"></script>
 
     <script type="text/javascript">
+        document.addEventListener("deviceready", onDeviceReady, false);
         function onDeviceReady(){
-
+            NetDroidPlugin.getConfig(function(configJson){},function(){alert();})
         }
     </script>
 </head>
