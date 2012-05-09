@@ -5,7 +5,7 @@
  * Time: 下午5:42
  * To change this template use File | Settings | File Templates.
  */
-var NetDroidPlugin = new function(){};
+var NetDroidPlugin = function(){};
 NetDroidPlugin.prototype.getConfig = function(succCallBack,failureCallBack){
     return PhoneGap.exec(succCallBack,failureCallBack,'NetDroidPlugin','getConfig',[]);
 }

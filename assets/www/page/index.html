@@ -4,21 +4,33 @@
     <title>Net Droid</title>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
     <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 
-    <script type="text/javascript" charset="utf-8" src="../js/jq.mobi.min.js"></script>
-    <script type="text/javascript" charset="utf-8" src="../js/cordova-1.7.0.js"></script>
-    <script type="text/javascript" charset="utf-8" src="../js/NetDroidPlugin.js"></script>
+    <script type="text/javascript" charset="utf-8" src="file:///android_asset/www/js/jq.mobi.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="file:///android_asset/www/js/cordova-1.7.0.js"></script>
+    <script type="text/javascript" charset="utf-8" src="file:///android_asset/www/js/NetDroidPlugin.js"
+            id="netDroidPlugin"></script>
 
     <script type="text/javascript">
-        document.addEventListener("deviceready", onDeviceReady, false);
-        function onDeviceReady(){
-            NetDroidPlugin.getConfig(function(configJson){},function(){alert();})
+
+        function onDeviceReady() {
+            window.plugins.NetDroidPlugin.getConfig(function (configJson) {
+                var $configContain = $('#ipConfigContain');
+                for (var netKey in configJson) {
+                    $configContain.append('<div>' + netKey + ' : ' + configJson[netKey] + '</div>');
+                }
+            }, function (errMsg) {
+                alert(errMsg);
+            });
         }
+        document.addEventListener("deviceready", onDeviceReady, false);
     </script>
 </head>
 <body>
+<h3>GetIpConfig</h3>
 
+<div id="ipConfigContain">
+</div>
 </body>
 </html>
