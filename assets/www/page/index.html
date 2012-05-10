@@ -7,30 +7,53 @@
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 
-    <script type="text/javascript" charset="utf-8" src="file:///android_asset/www/js/jq.mobi.min.js"></script>
-    <script type="text/javascript" charset="utf-8" src="file:///android_asset/www/js/cordova-1.7.0.js"></script>
-    <script type="text/javascript" charset="utf-8" src="file:///android_asset/www/js/NetDroidPlugin.js"
-            id="netDroidPlugin"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/cordova-1.7.0.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/NetDroidPlugin.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/jquery.mobile-1.1.0.min.js"></script>
 
+    <link type="text/css" href="../css/jquery.mobile-1.1.0.min.css" rel="stylesheet" />
     <script type="text/javascript">
 
         function onDeviceReady() {
             window.plugins.NetDroidPlugin.getConfig(function (configJson) {
                 var $configContain = $('#ipConfigContain');
-                for (var netKey in configJson) {
-                    $configContain.append('<div>' + netKey + ' : ' + configJson[netKey] + '</div>');
+                if(Connection.WIFI == navigator.network.connection.type){
+                    for (var netKey in configJson) {
+                        $configContain.append('<div data-role="fieldcontain">' + netKey + ' : ' + configJson[netKey] + '</div>');
+                    }
+                }
+                else{
+                    $configContain.append('<div> IP:'+configJson['ip']+'</div>');
                 }
             }, function (errMsg) {
                 alert(errMsg);
             });
+            document.addEventListener("menubutton", onMenuKeyDown, false);
         }
         document.addEventListener("deviceready", onDeviceReady, false);
+
+        function onMenuKeyDown(){
+            $.mobile.changePage('#menuDialog',{transition:'flip',reverse:false,role:'dialog'});
+        }
     </script>
 </head>
 <body>
-<h3>GetIpConfig</h3>
-
-<div id="ipConfigContain">
-</div>
+    <div id="mainPage" data-role="page">
+        <div data-role="header" data-position="inline" data-theme="b">
+            <h1>IpConfig</h1>
+        </div>
+        <div data-role="content" data-theme="e">
+            <div id="ipConfigContain" data-role="collapsible-set">
+            </div>
+        </div>
+    </div>
+    <div id="menuDialog" data-rel="dialog" data-title="Menu" data-dom-cache="true"
+         data-transition="flip">
+        <div data-role="content">
+            <a href="javascript:navigator.app.exitApp();" data-role="button">Exit</a>
+            <a href="javascript:void(0);" data-role="button" data-rel="back">Back</a>
+        </div>
+    </div>
 </body>
 </html>
