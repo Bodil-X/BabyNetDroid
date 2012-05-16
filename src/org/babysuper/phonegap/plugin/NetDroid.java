@@ -65,14 +65,15 @@ public class NetDroid extends Plugin {
         WifiInfo wifiInfo = wifiManger.getConnectionInfo();
         JSONObject dhcpJson = new JSONObject();
         try {
-            dhcpJson.put("dns1", intToIp(dhcpInfo.dns1));
-            dhcpJson.put("dns2", intToIp(dhcpInfo.dns2));
+            dhcpJson.put("staticIp", intToIp(dhcpInfo.ipAddress));
+            dhcpJson.put("wifiAddress",intToIp(wifiInfo.getIpAddress()));
             dhcpJson.put("netmask", intToIp(dhcpInfo.netmask));
             dhcpJson.put("gateway", intToIp(dhcpInfo.gateway));
-            dhcpJson.put("staticIp", intToIp(dhcpInfo.ipAddress));
+            dhcpJson.put("dns1", intToIp(dhcpInfo.dns1));
+            dhcpJson.put("dns2", intToIp(dhcpInfo.dns2));
             dhcpJson.put("serverAddress", intToIp(dhcpInfo.serverAddress));
             dhcpJson.put("mac",String.valueOf(wifiInfo.getMacAddress()));
-            dhcpJson.put("wifiAddress",intToIp(wifiInfo.getIpAddress()));
+
         } catch (JSONException ex) {
             Log.e("getDHCPInfo Error", "JSON Error:" + ex.getMessage());
         } finally {

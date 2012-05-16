@@ -30,6 +30,7 @@
                 alert(errMsg);
             });
             document.addEventListener("menubutton", onMenuKeyDown, false);
+            console.log('test');
         }
         document.addEventListener("deviceready", onDeviceReady, false);
 
@@ -45,6 +46,14 @@
         </div>
         <div data-role="content" data-theme="e">
             <div id="ipConfigContain" data-role="collapsible-set">
+            </div>
+        </div>
+        <div data-role="footer" data-position="fixed" data-theme="b">
+            <div data-role="navbar" data-iconpos="top" data-theme="b">
+                <ul>
+                    <li><a href="#" data-icon="gear">Setting</a></li>
+                    <li><a href="javascript:window.confirm('Close the app now?')?navigator.app.exitApp():void(0);" data-icon="back">Exit</a></li>
+                </ul>
             </div>
         </div>
     </div>
