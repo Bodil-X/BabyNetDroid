@@ -12,19 +12,46 @@
     <script type="text/javascript" charset="utf-8" src="../js/NetDroidPlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/jquery.mobile-1.1.0.min.js"></script>
 
-    <link type="text/css" href="../css/jquery.mobile-1.1.0.min.css" rel="stylesheet" />
+    <link type="text/css" href="../css/jquery.mobile-1.1.0.min.css" rel="stylesheet"/>
+    <style type="text/css">
+        #ipSettingContain ul li span,
+        #dnsSettingContain ul li span,
+        #otherSettingContain ul li span {
+            display: inline-block;
+            min-width: 60px;
+            text-align: right;
+            color: red;
+        }
+    </style>
     <script type="text/javascript">
 
         function onDeviceReady() {
             window.plugins.NetDroidPlugin.getConfig(function (configJson) {
-                var $configContain = $('#ipConfigContain');
-                if(Connection.WIFI == navigator.network.connection.type){
-                    for (var netKey in configJson) {
-                        $configContain.append('<div data-role="fieldcontain">' + netKey + ' : ' + configJson[netKey] + '</div>');
+                var $ipSettingListView = $('#ipSettingContain>ul'),
+                        $dnsSettingListView = $('#dnsSettingContain>ul'),
+                        $otherSettingListView = $('#otherSettingContain>ul');
+                if (Connection.WIFI == navigator.network.connection.type) {
+                    var ipSettingKeys = ['ip', 'netmask', 'gateway'],
+                            dnsSettingKeys = ['dns1', 'dns2'],
+                            otherSettingKeys = ['mac', 'serverAddress', 'wifiAddress'];
+                    for (var i = 0; i < ipSettingKeys.length; i++) {
+                        var key = ipSettingKeys[i];
+                        $ipSettingListView.append('<li><span>' + key + ':</span>' + configJson[key] + '</li>');
                     }
+                    for (var i = 0; i < dnsSettingKeys.length; i++) {
+                        var key = dnsSettingKeys[i];
+                        $dnsSettingListView.append('<li><span>' + key + ':</span>' + configJson[key] + '</li>');
+                    }
+                    for (var i = 0; i < otherSettingKeys.length; i++) {
+                        var key = otherSettingKeys[i];
+                        $otherSettingListView.append('<li><span>' + key + ':</span>' + configJson[key] + '</li>');
+                    }
+                    $ipSettingListView.listview('refresh');
+                    $dnsSettingListView.listview('refresh');
+                    $otherSettingListView.listview('refresh');
                 }
-                else{
-                    $configContain.append('<div> IP:'+configJson['ip']+'</div>');
+                else {
+                    $ipSettingListView.append('<div> IP:' + configJson['ip'] + '</div>');
                 }
             }, function (errMsg) {
                 alert(errMsg);
@@ -34,35 +61,50 @@
         }
         document.addEventListener("deviceready", onDeviceReady, false);
 
-        function onMenuKeyDown(){
-            $.mobile.changePage('#menuDialog',{transition:'flip',reverse:false,role:'dialog'});
+        function onMenuKeyDown() {
+            $.mobile.changePage('#menuDialog', {transition:'flip', reverse:false, role:'dialog'});
         }
     </script>
 </head>
 <body>
-    <div id="mainPage" data-role="page">
-        <div data-role="header" data-position="inline" data-theme="b">
-            <h1>IpConfig</h1>
+<div id="mainPage" data-role="page">
+    <div data-role="header" data-position="inline" data-theme="b">
+        <h1>IpConfig</h1>
+    </div>
+    <div data-role="content" data-theme="e">
+        <div id="ipSettingContain" data-role="collapsible-set">
+            <ul data-role="listview" data-inset="true" data-theme="b">
+                <li data-role="list-divider">IP Setting</li>
+            </ul>
         </div>
-        <div data-role="content" data-theme="e">
-            <div id="ipConfigContain" data-role="collapsible-set">
-            </div>
+        <div id="dnsSettingContain" data-role="collapsible-set">
+            <ul data-role="listview" data-inset="true" data-theme="b">
+                <li data-role="list-divider">DNS Setting</li>
+            </ul>
         </div>
-        <div data-role="footer" data-position="fixed" data-theme="b">
-            <div data-role="navbar" data-iconpos="top" data-theme="b">
-                <ul>
-                    <li><a href="#" data-icon="gear">Setting</a></li>
-                    <li><a href="javascript:window.confirm('Close the app now?')?navigator.app.exitApp():void(0);" data-icon="back">Exit</a></li>
-                </ul>
-            </div>
+        <div id="otherSettingContain" data-role="collapsible-set">
+            <ul data-role="listview" data-inset="true" data-theme="b">
+                <li data-role="list-divider">Other Setting</li>
+            </ul>
         </div>
     </div>
-    <div id="menuDialog" data-rel="dialog" data-title="Menu" data-dom-cache="true"
-         data-transition="flip">
-        <div data-role="content">
-            <a href="javascript:navigator.app.exitApp();" data-role="button">Exit</a>
-            <a href="javascript:void(0);" data-role="button" data-rel="back">Back</a>
+    <div data-role="footer" data-position="fixed" data-theme="b">
+        <div data-role="navbar" data-iconpos="top" data-theme="b">
+            <ul>
+                <li><a href="setting.html" data-transition="slideup" data-icon="gear">Setting</a></li>
+                <li><a href="javascript:window.confirm('Close the app now?')?navigator.app.exitApp():void(0);"
+                       data-icon="back">Exit</a></li>
+            </ul>
         </div>
     </div>
+</div>
+<div id="menuDialog" data-rel="dialog" data-title="Menu" data-dom-cache="true"
+     data-transition="flip">
+    <div data-role="content">
+        <a href="javascript:navigator.app.exitApp();" data-role="button">Exit</a>
+        <a href="setting.html" data-transition="slideup" data-role="button">Setting</a>
+        <a href="javascript:void(0);" data-role="button" data-rel="back">Back</a>
+    </div>
+</div>
 </body>
 </html>
