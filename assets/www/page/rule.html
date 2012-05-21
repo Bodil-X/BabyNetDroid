@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rule manage</title>
+    <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/cordova-1.7.0.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/NetDroidPlugin.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/jquery.mobile-1.1.0.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/jquery.validate.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/jquery.maskedinput-1.3.min.js"></script>
+
+    <link type="text/css" href="../css/jquery.mobile-1.1.0.min.css" rel="stylesheet"/>
+</head>
+<body>
+<div id="rulePage" data-role="page" data-theme="b">
+    <div data-role="header" data-theme="b">
+        <h1>Add Rule</h1>
+        <a id="btnSave" href="javascript:void(0);" data-role="button" data-icon="gear" class="ui-btn-right">Save</a>
+    </div>
+    <div data-role="content" data-theme="b">
+        <form id="ruleForm" method="post">
+            <div data-role="fieldcontain">
+                <input id="txtSSID" type="text" placeholder="SSID"
+                       required="required" class="required"/>
+            </div>
+            <div data-role="fieldcontain">
+                <input id="txtIP" type="text" required="required" class="ip"
+                       pattern="([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])"
+                       placeholder="IP:192.168.1.100"/>
+            </div>
+            <div data-role="fieldcontain">
+                <input id="txtNetmask" type="text" required="required" class="netmask"
+                       pattern="(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}"
+                       placeholder="Netmask:255.255.255.0"/>
+            </div>
+            <div data-role="fieldcontain">
+                <input id="txtGateway" type="text" required="required" class="ip"
+                       pattern="([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])"
+                       placeholder="Gateway:192.168.1.1"/>
+            </div>
+            <div data-role="fieldcontain">
+                <input id="txtDNS1" type="text" required="required" class="ip"
+                       pattern="([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])"
+                       placeholder="DNS1:8.8.8.8"/>
+            </div>
+            <div data-role="fieldcontain">
+                <input id="txtDNS2" type="text" required="required" class="ip"
+                       pattern="([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])"
+                       placeholder="DNS2:8.8.4.4"/>
+            </div>
+        </form>
+    </div>
+    <style type="text/css">
+        #ruleForm label.error {
+            color: red;
+            font-size: 16px;
+            font-weight: normal;
+            line-height: 1.4;
+            margin-top: 0.5em;
+            width: 100%;
+            float: none;
+            text-indent: 15px;
+        }
+    </style>
+    <script type="text/javascript">
+        $('#rulePage').bind('pageinit', function () {
+            $('#btnSave').bind('click', save);
+            $.validator.addMethod('regex', function (value, element, params) {
+                var match;
+                if (this.optional(element))return true;
+                match = new RegExp(params).exec(value);
+                return (match && (match.index === 0) && (match[0].length === value.length));
+            },'This field is not validated.');
+            $.validator.addClassRules('ip', {
+                required:true,
+                regex:'([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])',
+                messages:{
+                    required:'This field is required.',
+                    regex:'The ip just like that: 192.168.1.100'
+                }
+            });
+            $.validator.addClassRules('netmask', {
+                required:true,
+                regex:'(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}',
+                messages:{
+                    required:'This field is required.',
+                    regex:'The netmask like that: 255.255.255.0'
+                }
+            });
+            //$('#txtIP,#txtNetmask,#txtGateway,#txtDNS1,#txtDNS2').mask('999.999.999.999');
+        });
+
+        function save() {
+            if (!validateForm()){
+                $("#ruleForm :input").valid();
+                return false;
+            }
+        }
+
+        function validateForm() {
+            var isValidated = true;
+            $('#rulePage :input').each(function () {
+                isValidated = this.validity.valid;
+                return isValidated;
+            });
+            return isValidated;
+        }
+    </script>
+</div>
+</body>
+</html>
