@@ -9,6 +9,7 @@
     <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/cordova-1.7.0.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/NetDroidPlugin.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/ToastPlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/jquery.mobile-1.1.0.min.js"></script>
 
     <link type="text/css" href="../css/jquery.mobile-1.1.0.min.css" rel="stylesheet"/>
@@ -16,14 +17,45 @@
 </head>
 <body>
 <div id="settingPage" data-role="page" data-theme="b">
-    <div data-role="header" data-theme="b">
+    <div data-role="header" data-theme="b" data-position="fixed">
         <h1>Setting Page</h1>
-        <a href="rule.html" data-role="button" data-icon="plus" class="ui-btn-right">Add Rule</a>
+        <a href="rule.html" data-transition="flow" data-role="button" data-icon="plus" class="ui-btn-right">Add Rule</a>
     </div>
     <div data-role="content" data-theme="b">
         <ul id="settingList" data-role="listview">
         </ul>
     </div>
+
+    <script type="text/javascript">
+        $('#settingPage').bind('pageinit', function () {
+            var db = window.openDatabase('NetDroid', '1.0', 'NetDroid', 1000000);
+            db.transaction(function (tx) {
+                tx.executeSql('select * from NetDroidRules where status=1 order by sortOrder', [], readRules, errorCB);
+            }, errorCB, successCB);
+        });
+
+        function readRules(tx, results) {
+            if (!results || results.rows.length == 0)return;
+            var $settingList = $('#settingList');
+            for (var i = 0, j = results.rows.length; i < j; i++) {
+                var entry = results.rows.item(i),
+                        appendHtml = '<li><h3>' + entry.ssidName + '</h3><p>ip:<strong>' + entry.ip + '</strong></p>' +
+                                '<p>netmask:<strong>' + entry.netmask + '</strong></p><p>gateway:<strong>' +
+                                entry.gateway + '</strong></p><p>dns1:<strong>' + entry.dns1 + '</strong></p>' +
+                                '<p>dns2:<strong>' + entry.dns2 + '</strong></p></li>';
+                $settingList.append(appendHtml);
+            }
+            $settingList.listview('refresh');
+        }
+
+        function errorCB(err) {
+            alert("Error processing SQL: " + err.code);
+        }
+
+        function successCB() {
+            console.log('Sql execute success');
+        }
+    </script>
 </div>
 </body>
 </html>
