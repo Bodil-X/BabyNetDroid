@@ -29,10 +29,15 @@
     <script type="text/javascript">
         $('#settingPage').bind('pageinit', function () {
             var db = window.openDatabase('NetDroid', '1.0', 'NetDroid', 1000000);
-            db.transaction(function (tx) {
-                tx.executeSql('select * from NetDroidRules where status=1 order by sortOrder', [], readRules, errorCB);
-            }, errorCB, successCB);
+            db.transaction(queryDB, errorCB, successCB);
         });
+
+        function queryDB(tx) {
+            tx.executeSql('select 1 from sqlite_master where type="table" and name="NetDroidRules"', [], function (tx, results) {
+                if (!results || results.rows.length == 0)return;
+                tx.executeSql('select * from NetDroidRules where status=1 order by sortOrder', [], readRules, errorCB);
+            }, errorCB);
+        }
 
         function readRules(tx, results) {
             if (!results || results.rows.length == 0)return;
@@ -48,8 +53,8 @@
             $settingList.listview('refresh');
         }
 
-        function errorCB(err) {
-            alert("Error processing SQL: " + err.code);
+        function errorCB(t, err) {
+            alert("Error processing SQL code: " + err.code + ', message:' + err.message);
         }
 
         function successCB() {

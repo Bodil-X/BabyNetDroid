@@ -31,7 +31,7 @@
             </div>
             <div data-role="fieldcontain">
                 <input id="txtNetmask" type="text" required="required" class="netmask"
-                       pattern="(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}"
+                       pattern="(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5]))(\.(\d{1,2}|0{3}|1\d\d|2[0-4]\d|25[0-5])){2}"
                        placeholder="Netmask:255.255.255.0"/>
             </div>
             <div data-role="fieldcontain">
@@ -82,14 +82,13 @@
             });
             $.validator.addClassRules('netmask', {
                 required:true,
-                regex:'(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])(\\.(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])){3}',
+                regex:'(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])(\\.(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5]))(\\.(\\d{1,2}|0{3}|1\\d\\d|2[0-4]\\d|25[0-5])){2}',
                 messages:{
                     required:'This field is required.',
                     regex:'The netmask like that: 255.255.255.0'
                 }
             });
-            $.mask.definitions['~'] = '[\\d]{1,3}';
-            $('#txtIP,#txtNetmask,#txtGateway,#txtDNS1,#txtDNS2').mask('~.9?99.9?99.9?99');
+            $('#txtIP,#txtNetmask,#txtGateway,#txtDNS1,#txtDNS2').mask('999.999.999.9?99');
         });
 
         function validateForm() {
@@ -107,14 +106,7 @@
                 return false;
             }
             var db = window.openDatabase('NetDroid', '1.0', 'NetDroid', 1000000);
-            db.transaction(createDb, errorCB, successCB);
-            db.transaction(insertRule, errorCB, function () {
-                window.plugins.ToastPlugin.makeText('Save Success.');
-                $.mobile.changePage('setting.html',{
-                    transition:'flow',
-                    reverse:false
-                });
-            });
+            db.transaction(createDb, errorCB, createDbSucc);
         }
 
         function createDb(tx) {
@@ -131,8 +123,15 @@
             alert("Error processing SQL: " + err.code);
         }
 
-        function successCB() {
-            console.log('Sql execute success');
+        function createDbSucc() {
+            var db = window.openDatabase('NetDroid', '1.0', 'NetDroid', 1000000);
+            db.transaction(insertRule, errorCB, function () {
+                window.plugins.ToastPlugin.makeText('Save Success.');
+                $.mobile.changePage('setting.html',{
+                    transition:'flow',
+                    reverse:false
+                });
+            });
         }
 
         function insertRule(tx) {
