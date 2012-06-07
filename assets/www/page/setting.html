@@ -5,7 +5,7 @@
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes"/>
-    <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+
     <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/cordova-1.7.0.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/NetDroidPlugin.js"></script>
@@ -19,10 +19,11 @@
 <div id="settingPage" data-role="page" data-theme="b">
     <div data-role="header" data-theme="b" data-position="fixed">
         <h1>Setting Page</h1>
-        <a href="rule.html" data-transition="flow" data-role="button" data-icon="plus" class="ui-btn-right">Add Rule</a>
+        <a href="index.html" data-role="button" data-rel="back" data-icon="home" data-inline="true">Home</a>
+        <a href="rule.html" data-role="button" data-transition="flow" data-icon="plus" class="ui-btn-right">Add Rule</a>
     </div>
     <div data-role="content" data-theme="b">
-        <ul id="settingList" data-role="listview">
+        <ul id="settingList" data-role="listview" data-theme="b" data-divider-theme="d">
         </ul>
     </div>
 
@@ -33,10 +34,11 @@
         });
 
         function queryDB(tx) {
-            tx.executeSql('select 1 from sqlite_master where type="table" and name="NetDroidRules"', [], function (tx, results) {
-                if (!results || results.rows.length == 0)return;
-                tx.executeSql('select * from NetDroidRules where status=1 order by sortOrder', [], readRules, errorCB);
-            }, errorCB);
+            tx.executeSql('select 1 from sqlite_master where type="table" and name="NetDroidRules"',
+                    [], function (tx, results) {
+                        if (!results || results.rows.length == 0)return;
+                        tx.executeSql('select * from NetDroidRules where status=1 order by sortOrder', [], readRules, errorCB);
+                    }, errorCB);
         }
 
         function readRules(tx, results) {
@@ -44,7 +46,7 @@
             var $settingList = $('#settingList');
             for (var i = 0, j = results.rows.length; i < j; i++) {
                 var entry = results.rows.item(i),
-                        appendHtml = '<li><h3>' + entry.ssidName + '</h3><p>ip:<strong>' + entry.ip + '</strong></p>' +
+                        appendHtml = '<li data-role="list-divider">' + entry.ssidName + '<span class="ui-li-count">Current</span></li><li><p>ip:<strong>' + entry.ip + '</strong></p>' +
                                 '<p>netmask:<strong>' + entry.netmask + '</strong></p><p>gateway:<strong>' +
                                 entry.gateway + '</strong></p><p>dns1:<strong>' + entry.dns1 + '</strong></p>' +
                                 '<p>dns2:<strong>' + entry.dns2 + '</strong></p></li>';

@@ -5,7 +5,6 @@
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes"/>
-    <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 
     <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/cordova-1.7.0.js"></script>
@@ -67,6 +66,10 @@
         function onMenuKeyDown() {
             $.mobile.changePage('#menuDialog', {transition:'flip', reverse:false, role:'dialog'});
         }
+        $(document).bind('mobileinit',function(){
+            $.mobile.pushStateEnabled = false;
+            $.mobile.allowCrossDomainPages = true;
+        });
     </script>
 </head>
 <body>
@@ -94,7 +97,7 @@
     <div data-role="footer" data-position="fixed" data-theme="b">
         <div data-role="navbar" data-iconpos="top" data-theme="b">
             <ul>
-                <li><a href="setting.html" data-transition="slidefade" data-icon="gear">Setting</a></li>
+                <li><a href="setting.html" data-transition="turn" data-icon="gear">Setting</a></li>
                 <li><a href="javascript:window.confirm('Close the app now?')?navigator.app.exitApp():void(0);"
                        data-icon="back">Exit</a></li>
             </ul>
