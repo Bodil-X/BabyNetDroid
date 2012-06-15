@@ -7,13 +7,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes"/>
 
     <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
-    <script type="text/javascript" charset="utf-8" src="../js/cordova-1.7.0.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/cordova-1.8.1.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/NetDroidPlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/ToastPlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/jquery.mobile-1.1.0.min.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/jquery.validate.min.js"></script>
-    <script type="text/javascript" charset="utf-8" src="../js/jquery.maskedinput-1.3.js"></script>
+    <script type="text/javascript" src="../js/jquery.input-ip-address-control-1.0.js"></script>
     <!--<script src="http://debug.phonegap.com/target/target-script-min.js#BabyNetDroid"></script>-->
+    <script type="text/javascript" src="http://192.168.222.225:8888/target/target-script-min.js#anonymous"></script>
 
     <link type="text/css" href="../css/jquery.mobile-1.1.0.min.css" rel="stylesheet"/>
     <style type="text/css">
@@ -104,12 +105,19 @@
         </div>
     </div>
 </div>
-<div id="menuDialog" data-rel="dialog" data-title="Menu" data-dom-cache="true"
+<div id="menuDialog" data-role="page" data-title="Menu" data-dom-cache="true"
      data-transition="flip">
     <div data-role="content">
         <a href="javascript:navigator.app.exitApp();" data-role="button">Exit</a>
         <a href="setting.html" data-transition="slidefade" data-role="button">Setting</a>
         <a href="javascript:void(0);" data-role="button" data-rel="back">Back</a>
+    </div>
+</div>
+<div id="ssidDialog" data-role="page" data-title="Select SSID">
+    <div data-role="content">
+        <ul id="ssidListview" data-filter="true" data-inset="true">
+        </ul>
+        <a href="javascript:;" data-role="button" data-rel="back">Cancel</a>
     </div>
 </div>
 </body>

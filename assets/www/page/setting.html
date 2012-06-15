@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes"/>
 
     <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
-    <script type="text/javascript" charset="utf-8" src="../js/cordova-1.7.0.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/cordova-1.8.1.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/NetDroidPlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/ToastPlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/jquery.mobile-1.1.0.min.js"></script>
@@ -19,7 +19,7 @@
 <div id="settingPage" data-role="page" data-theme="b">
     <div data-role="header" data-theme="b" data-position="fixed">
         <h1>Setting Page</h1>
-        <a href="index.html" data-role="button" data-rel="back" data-icon="home" data-inline="true">Home</a>
+        <a href="index.html" data-role="button" data-icon="home" data-inline="true">Home</a>
         <a href="rule.html" data-role="button" data-transition="flow" data-icon="plus" class="ui-btn-right">Add Rule</a>
     </div>
     <div data-role="content" data-theme="b">
@@ -30,7 +30,7 @@
     <script type="text/javascript">
         $('#settingPage').bind('pageinit', function () {
             var db = window.openDatabase('NetDroid', '1.0', 'NetDroid', 1000000);
-            db.transaction(queryDB, errorCB, successCB);
+            db.transaction(queryDB, errorCB);
         });
 
         function queryDB(tx) {
@@ -57,10 +57,6 @@
 
         function errorCB(t, err) {
             alert("Error processing SQL code: " + err.code + ', message:' + err.message);
-        }
-
-        function successCB() {
-            console.log('Sql execute success');
         }
     </script>
 </div>

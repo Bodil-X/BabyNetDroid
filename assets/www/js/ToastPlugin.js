@@ -7,8 +7,8 @@
  */
 var ToastPlugin = function () {};
 ToastPlugin.prototype.makeText = function (showText, succCallBack, failureCallBack) {
-    return PhoneGap.exec(succCallBack, failureCallBack, 'ToastPlugin', 'makeText', [showText]);
+    return cordova.exec(succCallBack, failureCallBack, 'ToastPlugin', 'makeText', [showText]);
 }
-PhoneGap.addConstructor(function () {
-    PhoneGap.addPlugin('ToastPlugin', new ToastPlugin());
+cordova.addConstructor(function () {
+    cordova.addPlugin('ToastPlugin', new ToastPlugin());
 });

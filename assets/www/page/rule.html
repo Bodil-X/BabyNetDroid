@@ -7,12 +7,12 @@
     <meta name="apple-mobile-web-app-capable" content="yes"/>
 
     <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
-    <script type="text/javascript" charset="utf-8" src="../js/cordova-1.7.0.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/cordova-1.8.1.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/NetDroidPlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/ToastPlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/jquery.mobile-1.1.0.min.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/jquery.validate.min.js"></script>
-    <script type="text/javascript" charset="utf-8" src="../js/jquery.maskedinput-1.3.js"></script>
+    <script type="text/javascript" src="../js/jquery.input-ip-address-control-1.0.js"></script>
 
     <link type="text/css" href="../css/jquery.mobile-1.1.0.min.css" rel="stylesheet"/>
 </head>
@@ -20,7 +20,7 @@
 <div id="rulePage" data-role="page" data-theme="b">
     <div data-role="header" data-theme="b" data-position="fixed">
         <h1>Add Rule</h1>
-        <a href="setting.html" data-role="button" data-rel="back" data-icon="back" data-inline="true">Cancel</a>
+        <a href="setting.html" data-role="button" data-icon="back" data-inline="true">Cancel</a>
         <a id="btnSave" href="javascript:void(0);" data-role="button" data-icon="gear" class="ui-btn-right">Save</a>
     </div>
     <div data-role="content" data-theme="b">
@@ -54,6 +54,7 @@
                        pattern="([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])"
                        placeholder="DNS2:8.8.4.4"/>
             </div>
+            <a href="#ssidDialog" data-rel="dialog" data-role="button">Test</a>
             <input type="hidden" id="hidId"/>
         </form>
     </div>
@@ -94,7 +95,26 @@
                     regex:'The netmask like that: 255.255.255.0'
                 }
             });
-            $('#txtIP,#txtNetmask,#txtGateway,#txtDNS1,#txtDNS2').mask('999.999.999.9?99');
+            $('#txtIP,#txtNetmask,#txtGateway,#txtDNS1,#txtDNS2').ipAddress();
+            $('#txtSSID').bind('focus', function () {
+                $.mobile.changePage('#ssidDialog', {transition:'fade',reverse:false, role:'dialog'});
+            });
+            /*$('#ssidSelectorDialog').bind('pageshow', function (event, ui) {
+                $.mobile.showPageLoadingMsg('b', 'Scanning the SSID info,please waiting...', false);
+                window.plugins.NetDroidPlugin.getSSIDs(function (ssidInfos) {
+                    if (!ssidInfos) {
+                        for (var ssidName in ssidInfos) {
+                            var ssidInfo = ssidInfos[ssidName];
+                            $('#ssidListview').append('<li>' + ssidName + '</li>');
+                        }
+                        $('#ssidSelectorDialog').listview('refresh');
+                    }
+                    $.mobile.hidePageLoadingMsg();
+                }, function (errMsg) {
+                    alert(errMsg);
+                    $.mobile.hidePageLoadingMsg();
+                });
+            });*/
         });
 
         function validateForm() {
@@ -154,9 +174,6 @@
                     "insert or replace into NetDroidRules(ssidName,ip,netmask,gateway,dns1,dns2) values('" + ssidName +
                             "','" + ip + "','" + netmask + "','" + gateway +
                             "','" + dns1 + "','" + dns2 + "');";
-            /*
-             'else update NetDroidRules set ip="' + ip + '",netmask="' + netmask + '",gateway="' + gateway +
-             '",dns1="' + dns1 + '",dns2="' + dns2 + '" where ssidName="' + ssidName + '"';*/
             tx.executeSql(saveEntrySql);
         }
     </script>
