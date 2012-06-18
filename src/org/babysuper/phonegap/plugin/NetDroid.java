@@ -42,11 +42,10 @@ public class NetDroid extends Plugin {
         PluginResult result;
         try {
             JSONObject configJson;
-            if (ACTION_NAME_GETCONFIG.equals(actionName)){
+            if (ACTION_NAME_GETCONFIG.equals(actionName)) {
                 configJson = getDHCPJson();
                 configJson.put("ip", getLocalIpAddress());
-            }
-            else
+            } else
                 configJson = getSSIDJson();
 
             result = new PluginResult(PluginResult.Status.OK, configJson);
@@ -112,7 +111,7 @@ public class NetDroid extends Plugin {
                 recordSize--;
             }
         } catch (Exception ex) {
-            Log.e("get wifi ssid error", ex.getMessage());
+            Log.e("get wifi ssid error", "get wifi ssid error:" + ex.getMessage());
         }
         JSONObject ssidJsonObj = new JSONObject();
         try {
@@ -122,16 +121,16 @@ public class NetDroid extends Plugin {
                 ssidJsonObj.put(ssidEntry.getKey(), ssidEntry.getValue());
             }
         } catch (JSONException ex) {
-            Log.e("get wifi ssid parse to json Error", ex.getMessage());
+            Log.e("get wifi ssid parse to json Error", "ssid parse error:" + ex.getMessage());
         }
         return ssidJsonObj;
     }
 
-    private void regSSIDListener(){
+    private void regSSIDListener() {
         if (wifiManger == null)
             wifiManger = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
         if (!isRegSSIDScan) {
-            ctx.registerReceiver(new BroadcastReceiver() {
+            ctx.getApplicationContext().registerReceiver(new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     wifiResultList = wifiManger.getScanResults();

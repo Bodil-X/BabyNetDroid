@@ -20,14 +20,15 @@
 <div id="rulePage" data-role="page" data-theme="b">
     <div data-role="header" data-theme="b" data-position="fixed">
         <h1>Add Rule</h1>
-        <a href="setting.html" data-role="button" data-icon="back" data-inline="true">Cancel</a>
-        <a id="btnSave" href="javascript:void(0);" data-role="button" data-icon="gear" class="ui-btn-right">Save</a>
     </div>
     <div data-role="content" data-theme="b">
         <form id="ruleForm" method="post">
             <div data-role="fieldcontain">
-                <input id="txtSSID" type="text" placeholder="SSID"
-                       required="required" class="required"/>
+                <!--<input id="txtSSID" type="text" placeholder="SSID"
+                       required="required" class="required"/>-->
+                <select id="slSSID" data-native-menu="false">
+                    <option value="">Choose SSID</option>
+                </select>
             </div>
             <div data-role="fieldcontain">
                 <input id="txtIP" type="text" required="required" class="ip"
@@ -54,9 +55,14 @@
                        pattern="([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])"
                        placeholder="DNS2:8.8.4.4"/>
             </div>
-            <a href="#ssidDialog" data-rel="dialog" data-role="button">Test</a>
+            <!--<a id="btnSSIDDialog" href="#ssidDialog" data-rel="dialog" data-role="button">Test</a>-->
             <input type="hidden" id="hidId"/>
         </form>
+    </div>
+    <div data-role="footer" data-theme="b" data-position="fixed">
+        <h1></h1>
+        <a href="setting.html#" data-rel="back" data-icon="back" class="ui-btn-left">Cancel</a>
+        <a id="btnSave" href="javascript:void(0);" data-role="button" data-icon="gear" class="ui-btn-right">Save</a>
     </div>
     <style type="text/css">
         #ruleForm label.error {
@@ -96,26 +102,29 @@
                 }
             });
             $('#txtIP,#txtNetmask,#txtGateway,#txtDNS1,#txtDNS2').ipAddress();
-            $('#txtSSID').bind('focus', function () {
-                $.mobile.changePage('#ssidDialog', {transition:'fade',reverse:false, role:'dialog'});
-            });
-            /*$('#ssidSelectorDialog').bind('pageshow', function (event, ui) {
-                $.mobile.showPageLoadingMsg('b', 'Scanning the SSID info,please waiting...', false);
-                window.plugins.NetDroidPlugin.getSSIDs(function (ssidInfos) {
-                    if (!ssidInfos) {
-                        for (var ssidName in ssidInfos) {
-                            var ssidInfo = ssidInfos[ssidName];
-                            $('#ssidListview').append('<li>' + ssidName + '</li>');
-                        }
-                        $('#ssidSelectorDialog').listview('refresh');
-                    }
-                    $.mobile.hidePageLoadingMsg();
-                }, function (errMsg) {
-                    alert(errMsg);
-                    $.mobile.hidePageLoadingMsg();
-                });
-            });*/
+            /*$('#txtSSID').bind('focus', function () {
+             $.mobile.changePage('#ssidDialog', {transition:'fade',reverse:false, role:'dialog'});
+             *//*$('#btnSSIDDialog').trigger('click');*//*
+             });*/
+            scanSSIDs();
         });
+
+        function scanSSIDs() {
+            $.mobile.showPageLoadingMsg('b', 'Scanning the SSID info,please waiting...', true);
+            window.plugins.NetDroidPlugin.getSSIDs(function (ssidInfos) {
+                if (!ssidInfos) {
+                    for (var ssidName in ssidInfos) {
+                        var ssidInfo = ssidInfos[ssidName];
+                        $('#slSSID').append('<option value="'+ssidName+'">' + ssidName + '</li>');
+                    }
+                    $('#slSSID').selectmenu('refresh');
+                }
+                $.mobile.hidePageLoadingMsg();
+            }, function (errMsg) {
+                alert(errMsg);
+                $.mobile.hidePageLoadingMsg();
+            });
+        }
 
         function validateForm() {
             var isValidated = true;

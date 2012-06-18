@@ -61,6 +61,8 @@
                 alert(errMsg);
             });
             document.addEventListener("menubutton", onMenuKeyDown, false);
+            if(window.plugins.ToastPlugin)
+                window.maskText = window.plugins.ToastPlugin.maskText;
         }
         document.addEventListener("deviceready", onDeviceReady, false);
 
@@ -105,7 +107,7 @@
         </div>
     </div>
 </div>
-<div id="menuDialog" data-role="page" data-title="Menu" data-dom-cache="true"
+<div id="menuDialog" data-role="dialog" data-title="Menu" data-dom-cache="true"
      data-transition="flip">
     <div data-role="content">
         <a href="javascript:navigator.app.exitApp();" data-role="button">Exit</a>
@@ -113,7 +115,7 @@
         <a href="javascript:void(0);" data-role="button" data-rel="back">Back</a>
     </div>
 </div>
-<div id="ssidDialog" data-role="page" data-title="Select SSID">
+<div id="ssidDialog" data-role="dialog" data-title="Select SSID">
     <div data-role="content">
         <ul id="ssidListview" data-filter="true" data-inset="true">
         </ul>
