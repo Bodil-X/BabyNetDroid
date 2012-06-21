@@ -26,7 +26,7 @@
             <div data-role="fieldcontain">
                 <!--<input id="txtSSID" type="text" placeholder="SSID"
                        required="required" class="required"/>-->
-                <select id="slSSID" data-native-menu="false">
+                <select id="slSSID" data-native-menu="false" data-theme="c">
                     <option value="">Choose SSID</option>
                 </select>
             </div>
@@ -112,14 +112,16 @@
         function scanSSIDs() {
             $.mobile.showPageLoadingMsg('b', 'Scanning the SSID info,please waiting...', true);
             window.plugins.NetDroidPlugin.getSSIDs(function (ssidInfos) {
-                if (!ssidInfos) {
+                if (ssidInfos) {
                     for (var ssidName in ssidInfos) {
                         var ssidInfo = ssidInfos[ssidName];
-                        $('#slSSID').append('<option value="'+ssidName+'">' + ssidName + '</li>');
+                        $('#slSSID').append('<option value="'+ssidName+'">' + ssidName + '</option>');
+                        console.log(ssidName);
                     }
                     $('#slSSID').selectmenu('refresh');
                 }
                 $.mobile.hidePageLoadingMsg();
+                console.log(ssidInfos);
             }, function (errMsg) {
                 alert(errMsg);
                 $.mobile.hidePageLoadingMsg();

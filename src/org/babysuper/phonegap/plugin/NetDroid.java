@@ -31,6 +31,7 @@ public class NetDroid extends Plugin {
     private static String ACTION_NAME_GETCONFIG = "getConfig";
     private static String ACTION_NAME_GETSSIDS = "getSSIDs";
     private List<ScanResult> wifiResultList;
+    private int recordSize = 0;
     private HashMap<String, String> ssidHashMap = new HashMap<String, String>();
     private WifiManager wifiManger;
     private static Boolean isRegSSIDScan = false;
@@ -47,8 +48,10 @@ public class NetDroid extends Plugin {
                 configJson.put("ip", getLocalIpAddress());
             } else
                 configJson = getSSIDJson();
-
-            result = new PluginResult(PluginResult.Status.OK, configJson);
+            if (configJson.length() == 0)
+                result = new PluginResult(PluginResult.Status.NO_RESULT, "Can't get the Net Info.");
+            else
+                result = new PluginResult(PluginResult.Status.OK, configJson);
             return result;
         } catch (JSONException ex) {
             Log.e("NetDroid Error", String.format("Info:%s", ex.getMessage()));
@@ -68,7 +71,7 @@ public class NetDroid extends Plugin {
                 }
             }
         } catch (SocketException ex) {
-            Log.e("WifiPreference IpAddress", ex.toString());
+            Log.e("getLocalIpAddress Error", "WifiPreference IpAddress: " + ex.toString());
         }
         return null;
     }
@@ -103,15 +106,19 @@ public class NetDroid extends Plugin {
         regSSIDListener();
         ssidHashMap.clear();
         wifiManger.startScan();
+        long scanTimeMillis = System.currentTimeMillis();
+        boolean isFinished = false;
         try {
-            int recordSize = wifiResultList.size();
-            while (recordSize >= 0) {
-                ScanResult recordItem = wifiResultList.get(recordSize);
-                ssidHashMap.put(recordItem.SSID, recordItem.capabilities + "|" + recordItem.frequency + "|" + recordItem.level);
-                recordSize--;
+            while (new Date(System.currentTimeMillis() - scanTimeMillis).getSeconds() < 30 && !isFinished) {
+                while (recordSize > 0) {
+                    ScanResult recordItem = wifiResultList.get(recordSize - 1);
+                    ssidHashMap.put(recordItem.SSID, recordItem.capabilities + "|" + recordItem.frequency + "|" + recordItem.level);
+                    recordSize--;
+                    isFinished = (recordSize <= 0);
+                }
             }
         } catch (Exception ex) {
-            Log.e("get wifi ssid error", "get wifi ssid error:" + ex.getMessage());
+            Log.e("getSSIDJson error", "get wifi ssid error:" + ex.getMessage());
         }
         JSONObject ssidJsonObj = new JSONObject();
         try {
@@ -121,7 +128,7 @@ public class NetDroid extends Plugin {
                 ssidJsonObj.put(ssidEntry.getKey(), ssidEntry.getValue());
             }
         } catch (JSONException ex) {
-            Log.e("get wifi ssid parse to json Error", "ssid parse error:" + ex.getMessage());
+            Log.e("getSSIDJson Error", "ssid parse error:" + ex.getMessage());
         }
         return ssidJsonObj;
     }
@@ -131,9 +138,9 @@ public class NetDroid extends Plugin {
             wifiManger = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
         if (!isRegSSIDScan) {
             ctx.getApplicationContext().registerReceiver(new BroadcastReceiver() {
-                @Override
                 public void onReceive(Context context, Intent intent) {
                     wifiResultList = wifiManger.getScanResults();
+                    recordSize = wifiResultList.size();
                 }
             }, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
             isRegSSIDScan = true;
