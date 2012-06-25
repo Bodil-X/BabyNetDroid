@@ -11,6 +11,7 @@
     <script type="text/javascript" charset="utf-8" src="../js/NetDroidPlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/ToastPlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/jquery.mobile-1.1.0.min.js"></script>
+    <script type="text/javascript" src="../js/netDroidDB.js"></script>
 
     <link type="text/css" href="../css/jquery.mobile-1.1.0.min.css" rel="stylesheet"/>
     <style type="text/css">
@@ -33,7 +34,7 @@
     </div>
     <script type="text/javascript">
         $('#settingPage').bind('pageinit', function () {
-            var db = window.openDatabase('NetDroid', '1.0', 'NetDroid', 1000000);
+            var db = $.netDroidDB.db;
             db.transaction(queryDB, errorCB);
         });
 

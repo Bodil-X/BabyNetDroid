@@ -13,6 +13,7 @@
     <script type="text/javascript" charset="utf-8" src="../js/jquery.mobile-1.1.0.min.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/jquery.validate.min.js"></script>
     <script type="text/javascript" src="../js/jquery.input-ip-address-control-1.0.js"></script>
+    <script type="text/javascript" src="../js/netDroidDB.js"></script>
 
     <link type="text/css" href="../css/jquery.mobile-1.1.0.min.css" rel="stylesheet"/>
 </head>
@@ -116,12 +117,10 @@
                     for (var ssidName in ssidInfos) {
                         var ssidInfo = ssidInfos[ssidName];
                         $('#slSSID').append('<option value="'+ssidName+'">' + ssidName + '</option>');
-                        console.log(ssidName);
                     }
                     $('#slSSID').selectmenu('refresh');
                 }
                 $.mobile.hidePageLoadingMsg();
-                console.log(ssidInfos);
             }, function (errMsg) {
                 alert(errMsg);
                 $.mobile.hidePageLoadingMsg();
@@ -142,19 +141,7 @@
                 $("#ruleForm :input").valid();
                 return false;
             }
-            var db = window.openDatabase('NetDroid', '1.0', 'NetDroid', 1000000);
-            db.transaction(createDb, errorCB, createDbSucc);
-        }
-
-        function createDb(tx) {
-            var createTableSql = 'create table if not exists NetDroidRules(id integer primary key AUTOINCREMENT,' +
-                    'ssidName varchar(150) not null,ip varchar(100) not null,' +
-                    'netmask varchar(100) not null,gateway varchar(100) not null,dns1 varchar(100) not null,' +
-                    'dns2 varchar(100) not null,sortOrder integer AUTO_INCREMENT,' +
-                    "lastModified datetime default (datetime('now','localtime')),status integer default 1);";
-            tx.executeSql('drop table if exists NetDroidRules;');
-            tx.executeSql(createTableSql);
-            tx.executeSql('create unique index NetDroidRules_idx on NetDroidRules(ssidName);');
+            $.netDroidDB.createRuleTable(createDbSucc);
         }
 
         function errorCB(err) {
@@ -162,7 +149,7 @@
         }
 
         function createDbSucc() {
-            var db = window.openDatabase('NetDroid', '1.0', 'NetDroid', 1000000);
+            var db = $.netDroidDB.db;
             db.transaction(insertRule, errorCB, function (tx, results) {
                 window.plugins.ToastPlugin.makeText('Save Success.');
                 $.mobile.changePage('setting.html', {
