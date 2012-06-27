@@ -28,7 +28,7 @@
                 <!--<input id="txtSSID" type="text" placeholder="SSID"
                        required="required" class="required"/>-->
                 <select id="slSSID" data-native-menu="false" data-theme="c">
-                    <option value="">Choose SSID</option>
+                    <option value="test">test</option>
                 </select>
             </div>
             <div data-role="fieldcontain">
@@ -107,8 +107,18 @@
              $.mobile.changePage('#ssidDialog', {transition:'fade',reverse:false, role:'dialog'});
              *//*$('#btnSSIDDialog').trigger('click');*//*
              });*/
-            scanSSIDs();
+        }).bind('pageshow',function(e,ui){
+            //scanSSIDs();
+            var id = getParamByName('id');
+            if(ui.fromPage == 'settingPage' && id){
+                readRule(id);
+            }
         });
+
+        function getParamByName(name){
+            var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+            return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+        }
 
         function scanSSIDs() {
             $.mobile.showPageLoadingMsg('b', 'Scanning the SSID info,please waiting...', true);
@@ -160,7 +170,7 @@
         }
 
         function insertRule(tx) {
-            var ssidName = $('#txtSSID').val().trim(),
+            var ssidName = $('#slSSID').val().trim(),
                     ip = $('#txtIP').val(),
                     netmask = $('#txtNetmask').val(),
                     gateway = $('#txtGateway').val(),
@@ -173,6 +183,23 @@
                             "','" + ip + "','" + netmask + "','" + gateway +
                             "','" + dns1 + "','" + dns2 + "');";
             tx.executeSql(saveEntrySql);
+        }
+
+        function readRule(id){
+            var db = $.netDroidDB.db;
+            db.transaction(function(tx){
+                tx.executeSql("select * from NetDroidRules where status=1 and id="+id,[],function(tx,results){
+                    if (!results || results.rows.length == 0)return;
+                    var ruleEntry = results.rows.item(0);
+                    $('#slSSID').val(ruleEntry.ssidName);
+                    $('#txtIP').val(ruleEntry.ip);
+                    $('#txtNetmask').val(ruleEntry.netmask);
+                    $('#txtGateway').val(ruleEntry.gateway);
+                    $('#txtDNS1').val(ruleEntry.dns1);
+                    $('#txtDNS2').val(ruleEntry.dns2);
+                    $('#hidId').val(ruleEntry.id);
+                },errorCB);
+            }, errorCB);
         }
     </script>
 </div>

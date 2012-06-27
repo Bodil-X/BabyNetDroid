@@ -27,7 +27,7 @@
                             var that = this;
                             setTimeout(function () {
                                 that.setSelectionRange(begin, end);
-                            }, 0);
+                            }, 10);
                         }
                         else {
                             this.focus();
@@ -172,7 +172,7 @@
                             if (pos == -1) return false;
                             if (ctx.buffer[ctx.cursor.end - 1] == s.separator) return false;
                             ctx.cursor.end = pos;
-                            ctx.input.caret(ctx.cursor.end + 2);
+                            ctx.input.caret(ctx.cursor.end + 1);
                             return false;
                         }
                         else return false; // or invalid
