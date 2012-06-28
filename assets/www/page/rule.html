@@ -28,7 +28,7 @@
                 <!--<input id="txtSSID" type="text" placeholder="SSID"
                        required="required" class="required"/>-->
                 <select id="slSSID" data-native-menu="false" data-theme="c">
-                    <option value="test">test</option>
+                    <option value="">Select a SSID</option>
                 </select>
             </div>
             <div data-role="fieldcontain">
@@ -108,15 +108,15 @@
              *//*$('#btnSSIDDialog').trigger('click');*//*
              });*/
         }).bind('pageshow',function(e,ui){
-            //scanSSIDs();
+            scanSSIDs();
             var id = getParamByName('id');
-            if(ui.fromPage == 'settingPage' && id){
+            if($(ui.prevPage).attr('id') == 'settingPage' && id){
                 readRule(id);
             }
         });
 
         function getParamByName(name){
-            var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+            var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.href);
             return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
         }
 
