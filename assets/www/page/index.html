@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes"/>
 
     <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
-    <script type="text/javascript" charset="utf-8" src="../js/cordova-1.8.1.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/cordova-1.9.0.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/NetDroidPlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/ToastPlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/jquery.mobile-1.1.0.min.js"></script>
@@ -36,7 +36,7 @@
                         $dnsSettingListView = $('#dnsSettingContain>ul'),
                         $otherSettingListView = $('#otherSettingContain>ul');
                 if (Connection.WIFI == navigator.network.connection.type) {
-                    var ipSettingKeys = ['ip', 'netmask', 'gateway'],
+                    var ipSettingKeys = ['ssid','ip', 'netmask', 'gateway'],
                             dnsSettingKeys = ['dns1', 'dns2'],
                             otherSettingKeys = ['mac', 'serverAddress', 'wifiAddress'];
                     for (var i = 0; i < ipSettingKeys.length; i++) {
@@ -54,6 +54,7 @@
                     $ipSettingListView.listview('refresh');
                     $dnsSettingListView.listview('refresh');
                     $otherSettingListView.listview('refresh');
+                    $.netDroidDB.createRuleTable(function(){autoCreateDB(configJson);});
                 }
                 else {
                     $ipSettingListView.append('<div> IP:' + configJson['ip'] + '</div>');
@@ -74,6 +75,20 @@
             $.mobile.pushStateEnabled = false;
             $.mobile.allowCrossDomainPages = true;
         });
+
+        function autoCreateDB(dhcpConfig){
+            var db = $.netDroidDB.db;
+            db.transaction(function(tx){
+                var searchSql = "select * from NetDroidRules where status=1 and ssidName=?";
+                tx.executeSql(searchSql,[dhcpConfig['ssid']],function(tx,results){
+                    if (results && results.rows.length > 0)return;
+                    var insertSql = "insert or replace into NetDroidRules(ssidName,ip,netmask,gateway,dns1,dns2) "+
+                            "values(?,?,?,?,?,?)";
+                    tx.executeSql(insertSql,
+                            [dhcpConfig['ssid'],dhcpConfig['ip'],dhcpConfig['netmask'],dhcpConfig['gateway'],dhcpConfig['dns1'],dhcpConfig['dns2']]);
+                }, $.netDroidDB.errFun);
+            }, $.netDroidDB.errFun);
+        }
     </script>
 </head>
 <body>

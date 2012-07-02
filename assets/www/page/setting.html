@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes"/>
 
     <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
-    <script type="text/javascript" charset="utf-8" src="../js/cordova-1.8.1.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/cordova-1.9.0.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/NetDroidPlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/ToastPlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/jquery.mobile-1.1.0.min.js"></script>
@@ -35,15 +35,15 @@
     <script type="text/javascript">
         $('#settingPage').bind('pageinit', function () {
             var db = $.netDroidDB.db;
-            db.transaction(queryDB, errorCB);
+            db.transaction(queryDB, $.netDroidDB.errFun);
         });
 
         function queryDB(tx) {
             tx.executeSql('select 1 from sqlite_master where type="table" and name="NetDroidRules"',
                     [], function (tx, results) {
                         if (!results || results.rows.length == 0)return;
-                        tx.executeSql('select * from NetDroidRules where status=1 order by sortOrder', [], readRules, errorCB);
-                    }, errorCB);
+                        tx.executeSql('select * from NetDroidRules where status=1 order by sortOrder', [], readRules, $.netDroidDB.errFun);
+                    }, $.netDroidDB.errFun);
         }
 
         function readRules(tx, results) {
@@ -51,7 +51,8 @@
             var $settingList = $('#settingList');
             for (var i = 0, j = results.rows.length; i < j; i++) {
                 var entry = results.rows.item(i),
-                        appendHtml = '<li data-role="list-divider">' + entry.ssidName + '<span class="ui-li-count">Current</span></li><li><a href="rule.html?id='+
+                        appendHtml = '<li data-role="list-divider">' + entry.ssidName +
+                                '<span class="ui-li-count">Current</span></li><li><a href="rule.html?id='+
                                 entry.id+'"><p>ip:<strong>' + entry.ip + '</strong></p>' +
                                 '<p>netmask:<strong>' + entry.netmask + '</strong></p><p>gateway:<strong>' +
                                 entry.gateway + '</strong></p><p>dns1:<strong>' + entry.dns1 + '</strong></p>' +
@@ -59,10 +60,6 @@
                 $settingList.append(appendHtml);
             }
             $settingList.listview('refresh');
-        }
-
-        function errorCB(t, err) {
-            alert("Error processing SQL code: " + err.code + ', message:' + err.message);
         }
     </script>
 </div>

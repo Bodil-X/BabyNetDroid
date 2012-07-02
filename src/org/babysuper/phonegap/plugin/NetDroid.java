@@ -77,7 +77,7 @@ public class NetDroid extends Plugin {
     }
 
     private JSONObject getDHCPJson() {
-        wifiManger = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
+        wifiManger = (WifiManager) ctx.getActivity().getSystemService(Context.WIFI_SERVICE);
         DhcpInfo dhcpInfo = wifiManger.getDhcpInfo();
         WifiInfo wifiInfo = wifiManger.getConnectionInfo();
         JSONObject dhcpJson = new JSONObject();
@@ -90,7 +90,7 @@ public class NetDroid extends Plugin {
             dhcpJson.put("dns2", intToIp(dhcpInfo.dns2));
             dhcpJson.put("serverAddress", intToIp(dhcpInfo.serverAddress));
             dhcpJson.put("mac", String.valueOf(wifiInfo.getMacAddress()));
-
+            dhcpJson.put("ssid",wifiInfo.getSSID());
         } catch (JSONException ex) {
             Log.e("getDHCPInfo Error", "JSON Error:" + ex.getMessage());
         } finally {
@@ -135,9 +135,9 @@ public class NetDroid extends Plugin {
 
     private void regSSIDListener() {
         if (wifiManger == null)
-            wifiManger = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
+            wifiManger = (WifiManager) ctx.getActivity().getSystemService(Context.WIFI_SERVICE);
         if (!isRegSSIDScan) {
-            ctx.getApplicationContext().registerReceiver(new BroadcastReceiver() {
+            ctx.getActivity().registerReceiver(new BroadcastReceiver() {
                 public void onReceive(Context context, Intent intent) {
                     wifiResultList = wifiManger.getScanResults();
                     recordSize = wifiResultList.size();

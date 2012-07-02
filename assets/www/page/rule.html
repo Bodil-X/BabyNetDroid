@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes"/>
 
     <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
-    <script type="text/javascript" charset="utf-8" src="../js/cordova-1.8.1.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/cordova-1.9.0.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/NetDroidPlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/ToastPlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/jquery.mobile-1.1.0.min.js"></script>
@@ -58,6 +58,7 @@
             </div>
             <!--<a id="btnSSIDDialog" href="#ssidDialog" data-rel="dialog" data-role="button">Test</a>-->
             <input type="hidden" id="hidId"/>
+            <input type="hidden" id="hidSSIDName" />
         </form>
     </div>
     <div data-role="footer" data-theme="b" data-position="fixed">
@@ -121,13 +122,14 @@
         }
 
         function scanSSIDs() {
-            $.mobile.showPageLoadingMsg('b', 'Scanning the SSID info,please waiting...', true);
+            $.mobile.showPageLoadingMsg('b', 'Scanning the SSID info,please waiting...',true);
             window.plugins.NetDroidPlugin.getSSIDs(function (ssidInfos) {
                 if (ssidInfos) {
                     for (var ssidName in ssidInfos) {
                         var ssidInfo = ssidInfos[ssidName];
                         $('#slSSID').append('<option value="'+ssidName+'">' + ssidName + '</option>');
                     }
+                    $('#slSSID').val($('#hidSSIDName').val());
                     $('#slSSID').selectmenu('refresh');
                 }
                 $.mobile.hidePageLoadingMsg();
@@ -191,7 +193,7 @@
                 tx.executeSql("select * from NetDroidRules where status=1 and id="+id,[],function(tx,results){
                     if (!results || results.rows.length == 0)return;
                     var ruleEntry = results.rows.item(0);
-                    $('#slSSID').val(ruleEntry.ssidName);
+                    $('#hidSSIDName').val(ruleEntry.ssidName);
                     $('#txtIP').val(ruleEntry.ip);
                     $('#txtNetmask').val(ruleEntry.netmask);
                     $('#txtGateway').val(ruleEntry.gateway);
