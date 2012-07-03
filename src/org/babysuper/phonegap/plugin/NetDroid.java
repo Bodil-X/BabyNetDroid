@@ -1,13 +1,11 @@
 package org.babysuper.phonegap.plugin;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.*;
 import android.net.DhcpInfo;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.provider.Settings;
 import android.util.Log;
 import com.phonegap.api.Plugin;
 import org.apache.cordova.api.PluginResult;
@@ -30,6 +28,7 @@ public class NetDroid extends Plugin {
 
     private static String ACTION_NAME_GETCONFIG = "getConfig";
     private static String ACTION_NAME_GETSSIDS = "getSSIDs";
+    private static String ACTION_NAME_SETCONFIG = "setConfig";
     private List<ScanResult> wifiResultList;
     private int recordSize = 0;
     private HashMap<String, String> ssidHashMap = new HashMap<String, String>();
@@ -37,19 +36,34 @@ public class NetDroid extends Plugin {
     private static Boolean isRegSSIDScan = false;
 
     public PluginResult execute(String actionName, JSONArray jsonParams, String callBack) {
-        if (!ACTION_NAME_GETCONFIG.equals(actionName) && !ACTION_NAME_GETSSIDS.equals(actionName))
+        if (!ACTION_NAME_GETCONFIG.equals(actionName) && !ACTION_NAME_GETSSIDS.equals(actionName) &&
+                !ACTION_NAME_SETCONFIG.equals(actionName))
             return new PluginResult(PluginResult.Status.INVALID_ACTION, "The action name must is:" + ACTION_NAME_GETCONFIG
-                    + "or " + ACTION_NAME_GETSSIDS);
+                    + " or " + ACTION_NAME_GETSSIDS + " or " + ACTION_NAME_SETCONFIG);
         PluginResult result;
         try {
             JSONObject configJson;
-            if (ACTION_NAME_GETCONFIG.equals(actionName)) {
+            String message = "Can't get the Net Info.";
+            if (ACTION_NAME_SETCONFIG.equals(actionName)) {
+                configJson = new JSONObject();
+                String ipStr = jsonParams.getString(0);
+                String netmask = jsonParams.getString(1);
+                String gateway = jsonParams.getString(2);
+                String dns1 = jsonParams.getString(3);
+                String dns2 = jsonParams.getString(4);
+                boolean isSetSucc = setDhcpConfig(ipStr, netmask, gateway, dns1, dns2);
+                if(isSetSucc)
+                    configJson.put("message","Set DHCP Success");
+                else
+                    message = "Set DHCP Failure.";
+
+            } else if (ACTION_NAME_GETCONFIG.equals(actionName)) {
                 configJson = getDHCPJson();
                 configJson.put("ip", getLocalIpAddress());
             } else
                 configJson = getSSIDJson();
             if (configJson.length() == 0)
-                result = new PluginResult(PluginResult.Status.NO_RESULT, "Can't get the Net Info.");
+                result = new PluginResult(PluginResult.Status.NO_RESULT, message);
             else
                 result = new PluginResult(PluginResult.Status.OK, configJson);
             return result;
@@ -90,7 +104,7 @@ public class NetDroid extends Plugin {
             dhcpJson.put("dns2", intToIp(dhcpInfo.dns2));
             dhcpJson.put("serverAddress", intToIp(dhcpInfo.serverAddress));
             dhcpJson.put("mac", String.valueOf(wifiInfo.getMacAddress()));
-            dhcpJson.put("ssid",wifiInfo.getSSID());
+            dhcpJson.put("ssid", wifiInfo.getSSID());
         } catch (JSONException ex) {
             Log.e("getDHCPInfo Error", "JSON Error:" + ex.getMessage());
         } finally {
@@ -145,5 +159,17 @@ public class NetDroid extends Plugin {
             }, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
             isRegSSIDScan = true;
         }
+    }
+
+    private boolean setDhcpConfig(String ip, String netmask, String gateway, String dns1, String dns2) {
+        final ContentResolver contentResolver = ctx.getActivity().getContentResolver();
+        Settings.System.putInt(contentResolver, Settings.System.WIFI_USE_STATIC_IP, 1);
+        Settings.System.putString(contentResolver, Settings.System.WIFI_STATIC_IP, ip);
+        Settings.System.putString(contentResolver, Settings.System.WIFI_STATIC_NETMASK, netmask);
+        Settings.System.putString(contentResolver, Settings.System.WIFI_STATIC_GATEWAY, gateway);
+        Settings.System.putString(contentResolver, Settings.System.WIFI_STATIC_DNS1, dns1);
+        Settings.System.putString(contentResolver, Settings.System.WIFI_STATIC_DNS2, dns2);
+
+        return true;
     }
 }

@@ -21,7 +21,8 @@
                     'ssidName varchar(150) not null,ip varchar(100) not null,' +
                     'netmask varchar(100) not null,gateway varchar(100) not null,dns1 varchar(100) not null,' +
                     'dns2 varchar(100) not null,sortOrder integer AUTO_INCREMENT,' +
-                    "lastModified datetime default (datetime('now','localtime')),status integer default 1);";
+                    "lastModified datetime default (datetime('now','localtime')),status integer default 1,"+
+                    "useToken integer default(0));";
                 if(isDropTableBeforeCreate)
                     tx.executeSql('drop table if exists NetDroidRules;');
                 tx.executeSql(createTableSql);

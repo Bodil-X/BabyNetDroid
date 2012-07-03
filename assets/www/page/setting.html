@@ -23,7 +23,7 @@
         <h1>Setting Page</h1>
     </div>
     <div data-role="content" data-theme="b">
-        <ul id="settingList" data-role="listview" data-theme="b" data-divider-theme="d">
+        <ul id="settingList" data-role="listview" data-theme="b" data-divider-theme="d" data-split-theme="a">
         </ul>
     </div>
     <div data-role="footer" data-theme="b" data-position="fixed">
@@ -36,6 +36,19 @@
         $('#settingPage').bind('pageinit', function () {
             var db = $.netDroidDB.db;
             db.transaction(queryDB, $.netDroidDB.errFun);
+            $('#settingList .list-divider-button').live('click',function(){
+                var entryId = $(this).attr('entryId');
+                var db = $.netDroidDB.db;
+                db.transaction(function(tx){
+                    var activeSql = "update NetDroidRules set useToken=0 where useToken=1";
+                    tx.executeSql(activeSql);
+                    activeSql = "update NetDroidRules set useToken=1 where id="+entryId;
+                    tx.executeSql(activeSql);
+                }, $.netDroidDB.errFun,function(){
+                    $('#settingList').children().remove();
+                    $.mobile.activePage.trigger('pageinit');
+                });
+            });
         });
 
         function queryDB(tx) {
@@ -50,15 +63,21 @@
             if (!results || results.rows.length == 0)return;
             var $settingList = $('#settingList');
             for (var i = 0, j = results.rows.length; i < j; i++) {
-                var entry = results.rows.item(i),
-                        appendHtml = '<li data-role="list-divider">' + entry.ssidName +
-                                '<span class="ui-li-count">Current</span></li><li><a href="rule.html?id='+
-                                entry.id+'"><p>ip:<strong>' + entry.ip + '</strong></p>' +
-                                '<p>netmask:<strong>' + entry.netmask + '</strong></p><p>gateway:<strong>' +
-                                entry.gateway + '</strong></p><p>dns1:<strong>' + entry.dns1 + '</strong></p>' +
-                                '<p>dns2:<strong>' + entry.dns2 + '</strong></p></a></li>';
+                var entry = results.rows.item(i), appendHtml;
+                appendHtml = '<li data-role="list-divider">' + entry.ssidName;
+                if (entry.useToken == 1)
+                    appendHtml += '<span class="ui-li-count">Current</span>';
+                else
+                    appendHtml += '<button entryId="' + entry.id + '" class="list-divider-button" data-inline="true" data-mini="true">Active it</button>';
+
+                appendHtml += '</li><li><a href="rule.html?id=' +
+                        entry.id + '"><p>ip:<strong>' + entry.ip + '</strong></p>' +
+                        '<p>netmask:<strong>' + entry.netmask + '</strong></p><p>gateway:<strong>' +
+                        entry.gateway + '</strong></p><p>dns1:<strong>' + entry.dns1 + '</strong></p>' +
+                        '<p>dns2:<strong>' + entry.dns2 + '</strong></p></a></li>';
                 $settingList.append(appendHtml);
             }
+            $settingList.find('.list-divider-button').button();
             $settingList.listview('refresh');
         }
     </script>
