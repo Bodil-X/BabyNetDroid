@@ -29,6 +29,7 @@ public class NetDroid extends Plugin {
     private static String ACTION_NAME_GETCONFIG = "getConfig";
     private static String ACTION_NAME_GETSSIDS = "getSSIDs";
     private static String ACTION_NAME_SETCONFIG = "setConfig";
+    private static String ACTION_NAME_SETWIFIUSE = "setWifiUse";
     private List<ScanResult> wifiResultList;
     private int recordSize = 0;
     private HashMap<String, String> ssidHashMap = new HashMap<String, String>();
@@ -37,14 +38,18 @@ public class NetDroid extends Plugin {
 
     public PluginResult execute(String actionName, JSONArray jsonParams, String callBack) {
         if (!ACTION_NAME_GETCONFIG.equals(actionName) && !ACTION_NAME_GETSSIDS.equals(actionName) &&
-                !ACTION_NAME_SETCONFIG.equals(actionName))
+                !ACTION_NAME_SETCONFIG.equals(actionName) && !ACTION_NAME_SETWIFIUSE.equals(actionName))
             return new PluginResult(PluginResult.Status.INVALID_ACTION, "The action name must is:" + ACTION_NAME_GETCONFIG
-                    + " or " + ACTION_NAME_GETSSIDS + " or " + ACTION_NAME_SETCONFIG);
+                    + " or " + ACTION_NAME_GETSSIDS + " or " + ACTION_NAME_SETCONFIG + " or " + ACTION_NAME_SETWIFIUSE);
         PluginResult result;
         try {
             JSONObject configJson;
             String message = "Can't get the Net Info.";
-            if (ACTION_NAME_SETCONFIG.equals(actionName)) {
+            if (ACTION_NAME_SETWIFIUSE.equals(actionName)) {
+                setWifiUse(0);
+                configJson = new JSONObject();
+                configJson.put("message", "Set Auto Success");
+            } else if (ACTION_NAME_SETCONFIG.equals(actionName)) {
                 configJson = new JSONObject();
                 String ipStr = jsonParams.getString(0);
                 String netmask = jsonParams.getString(1);
@@ -52,8 +57,8 @@ public class NetDroid extends Plugin {
                 String dns1 = jsonParams.getString(3);
                 String dns2 = jsonParams.getString(4);
                 boolean isSetSucc = setDhcpConfig(ipStr, netmask, gateway, dns1, dns2);
-                if(isSetSucc)
-                    configJson.put("message","Set DHCP Success");
+                if (isSetSucc)
+                    configJson.put("message", "Set DHCP Success");
                 else
                     message = "Set DHCP Failure.";
 
@@ -105,6 +110,8 @@ public class NetDroid extends Plugin {
             dhcpJson.put("serverAddress", intToIp(dhcpInfo.serverAddress));
             dhcpJson.put("mac", String.valueOf(wifiInfo.getMacAddress()));
             dhcpJson.put("ssid", wifiInfo.getSSID());
+            int useStatic = Settings.System.getInt(ctx.getActivity().getContentResolver(), Settings.System.WIFI_USE_STATIC_IP);
+            dhcpJson.put("use_static_ip", useStatic == 1 ? "Static" : "Auto");
         } catch (JSONException ex) {
             Log.e("getDHCPInfo Error", "JSON Error:" + ex.getMessage());
         } finally {
@@ -169,6 +176,13 @@ public class NetDroid extends Plugin {
         Settings.System.putString(contentResolver, Settings.System.WIFI_STATIC_GATEWAY, gateway);
         Settings.System.putString(contentResolver, Settings.System.WIFI_STATIC_DNS1, dns1);
         Settings.System.putString(contentResolver, Settings.System.WIFI_STATIC_DNS2, dns2);
+
+        return true;
+    }
+
+    private boolean setWifiUse(int value) {
+        final ContentResolver contentResolver = ctx.getActivity().getContentResolver();
+        Settings.System.putInt(contentResolver, Settings.System.WIFI_USE_STATIC_IP, value);
 
         return true;
     }

@@ -21,7 +21,8 @@
     <style type="text/css">
         #ipSettingContain ul li span,
         #dnsSettingContain ul li span,
-        #otherSettingContain ul li span {
+        #otherSettingContain ul li span,
+        #currentSettingContain ul li span {
             display: inline-block;
             min-width: 60px;
             text-align: right;
@@ -29,65 +30,90 @@
         }
     </style>
     <script type="text/javascript">
-
+        var isFirstStart = true;
         function onDeviceReady() {
-            window.plugins.NetDroidPlugin.getConfig(function (configJson) {
-                var $ipSettingListView = $('#ipSettingContain>ul'),
-                        $dnsSettingListView = $('#dnsSettingContain>ul'),
-                        $otherSettingListView = $('#otherSettingContain>ul');
-                if (Connection.WIFI == navigator.network.connection.type) {
-                    var ipSettingKeys = ['ssid','ip', 'netmask', 'gateway'],
-                            dnsSettingKeys = ['dns1', 'dns2'],
-                            otherSettingKeys = ['mac', 'serverAddress', 'wifiAddress'];
-                    for (var i = 0; i < ipSettingKeys.length; i++) {
-                        var key = ipSettingKeys[i];
-                        $ipSettingListView.append('<li><span>' + key + ':</span>' + configJson[key] + '</li>');
-                    }
-                    for (var i = 0; i < dnsSettingKeys.length; i++) {
-                        var key = dnsSettingKeys[i];
-                        $dnsSettingListView.append('<li><span>' + key + ':</span>' + configJson[key] + '</li>');
-                    }
-                    for (var i = 0; i < otherSettingKeys.length; i++) {
-                        var key = otherSettingKeys[i];
-                        $otherSettingListView.append('<li><span>' + key + ':</span>' + configJson[key] + '</li>');
-                    }
-                    $ipSettingListView.listview('refresh');
-                    $dnsSettingListView.listview('refresh');
-                    $otherSettingListView.listview('refresh');
-                    $.netDroidDB.createRuleTable(function(){autoCreateDB(configJson);});
-                }
-                else {
-                    $ipSettingListView.append('<div> IP:' + configJson['ip'] + '</div>');
-                }
-            }, function (errMsg) {
+            window.plugins.NetDroidPlugin.getConfig(fillIpInfo, function (errMsg) {
                 alert(errMsg);
             });
             document.addEventListener("menubutton", onMenuKeyDown, false);
-            if(window.plugins.ToastPlugin)
+            if (window.plugins.ToastPlugin)
                 window.maskText = window.plugins.ToastPlugin.maskText;
+            $('#mainPage').bind('pageshow', function () {
+                if (isFirstStart)return;
+                window.plugins.NetDroidPlugin.getConfig(fillIpInfo, function (errMsg) {
+                    alert(errMsg);
+                });
+            });
+            isFirstStart = false;
         }
         document.addEventListener("deviceready", onDeviceReady, false);
 
         function onMenuKeyDown() {
             $.mobile.changePage('#menuDialog', {transition:'flip', reverse:false, role:'dialog'});
         }
-        $(document).bind('mobileinit',function(){
+        $(document).bind('mobileinit', function () {
             $.mobile.pushStateEnabled = false;
             $.mobile.allowCrossDomainPages = true;
         });
 
-        function autoCreateDB(dhcpConfig){
+        function autoCreateDB(dhcpConfig) {
             var db = $.netDroidDB.db;
-            db.transaction(function(tx){
+            db.transaction(function (tx) {
                 var searchSql = "select * from NetDroidRules where status=1 and ssidName=?";
-                tx.executeSql(searchSql,[dhcpConfig['ssid']],function(tx,results){
+                tx.executeSql(searchSql, [dhcpConfig['ssid']], function (tx, results) {
                     if (results && results.rows.length > 0)return;
-                    var insertSql = "insert or replace into NetDroidRules(ssidName,ip,netmask,gateway,dns1,dns2) "+
+                    var insertSql = "insert or replace into NetDroidRules(ssidName,ip,netmask,gateway,dns1,dns2) " +
                             "values(?,?,?,?,?,?)";
                     tx.executeSql(insertSql,
-                            [dhcpConfig['ssid'],dhcpConfig['ip'],dhcpConfig['netmask'],dhcpConfig['gateway'],dhcpConfig['dns1'],dhcpConfig['dns2']]);
+                            [dhcpConfig['ssid'], dhcpConfig['ip'], dhcpConfig['netmask'], dhcpConfig['gateway'], dhcpConfig['dns1'], dhcpConfig['dns2']]);
                 }, $.netDroidDB.errFun);
             }, $.netDroidDB.errFun);
+        }
+
+        function fillIpInfo(configJson) {
+            var $ipSettingListView = $('#ipSettingContain>ul'),
+                    $dnsSettingListView = $('#dnsSettingContain>ul'),
+                    $otherSettingListView = $('#otherSettingContain>ul'),
+                    $currentSettingListView = $('#currentSettingContain>ul');
+            if (Connection.WIFI == navigator.network.connection.type) {
+                $ipSettingListView
+                        .add($dnsSettingListView)
+                        .add($otherSettingListView)
+                        .add($currentSettingListView).show()
+                        .children(':not(:jqmData(role="list-divider"))').remove();
+                var ipSettingKeys = ['ip', 'netmask', 'gateway'],
+                        dnsSettingKeys = ['dns1', 'dns2'],
+                        otherSettingKeys = ['mac', 'serverAddress', 'wifiAddress'],
+                        currentSettingKeys = ['ssid', 'use_static_ip'];
+                for (var i = 0; i < ipSettingKeys.length; i++) {
+                    var key = ipSettingKeys[i];
+                    $ipSettingListView.append('<li><span>' + key + ':</span>' + configJson[key] + '</li>');
+                }
+                for (var i = 0; i < dnsSettingKeys.length; i++) {
+                    var key = dnsSettingKeys[i];
+                    $dnsSettingListView.append('<li><span>' + key + ':</span>' + configJson[key] + '</li>');
+                }
+                for (var i = 0; i < otherSettingKeys.length; i++) {
+                    var key = otherSettingKeys[i];
+                    $otherSettingListView.append('<li><span>' + key + ':</span>' + configJson[key] + '</li>');
+                }
+                for (var i = 0; i < currentSettingKeys.length; i++) {
+                    var key = currentSettingKeys[i];
+                    $currentSettingListView.append('<li><span>' + key + ':</span>' + configJson[key] + '</li>');
+                    localStorage.setItem(key, configJson[key]);
+                }
+                $ipSettingListView.listview('refresh');
+                $dnsSettingListView.listview('refresh');
+                $otherSettingListView.listview('refresh');
+                $currentSettingListView.listview('refresh');
+                $.netDroidDB.createRuleTable(function () {
+                    autoCreateDB(configJson);
+                });
+            }
+            else {
+                $dnsSettingListView.add($otherSettingListView).add($currentSettingListView).hidden();
+                $ipSettingListView.append('<div> IP:' + configJson['ip'] + '</div>');
+            }
         }
     </script>
 </head>
@@ -97,6 +123,11 @@
         <h1>IpConfig</h1>
     </div>
     <div data-role="content" data-theme="e">
+        <div id="currentSettingContain" data-role="collapsible-set">
+            <ul data-role="listview" data-inset="true" data-theme="b">
+                <li data-role="list-divider">Current Setting</li>
+            </ul>
+        </div>
         <div id="ipSettingContain" data-role="collapsible-set">
             <ul data-role="listview" data-inset="true" data-theme="b">
                 <li data-role="list-divider">IP Setting</li>

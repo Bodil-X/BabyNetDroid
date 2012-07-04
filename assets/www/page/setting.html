@@ -20,7 +20,11 @@
 <body>
 <div id="settingPage" data-role="page" data-theme="b">
     <div data-role="header" data-theme="b" data-position="fixed">
-        <h1>Setting Page</h1>
+        <h1>Setting</h1>
+        <a id="btnUseAuto" class="ui-btn-right" href="javascript:;" data-role="button" data-inline="true"
+           data-mini="true">
+            Use Auto
+        </a>
     </div>
     <div data-role="content" data-theme="b">
         <ul id="settingList" data-role="listview" data-theme="b" data-divider-theme="d" data-split-theme="a">
@@ -34,24 +38,64 @@
     </div>
     <script type="text/javascript">
         $('#settingPage').bind('pageinit', function () {
-            var db = $.netDroidDB.db;
-            db.transaction(queryDB, $.netDroidDB.errFun);
-            $('#settingList .list-divider-button').live('click',function(){
+            $('#settingList .list-divider-button').live('click', function () {
                 var entryId = $(this).attr('entryId');
                 var db = $.netDroidDB.db;
-                db.transaction(function(tx){
+                db.transaction(function (tx) {
                     var activeSql = "update NetDroidRules set useToken=0 where useToken=1";
                     tx.executeSql(activeSql);
-                    activeSql = "update NetDroidRules set useToken=1 where id="+entryId;
-                    tx.executeSql(activeSql);
-                }, $.netDroidDB.errFun,function(){
-                    $('#settingList').children().remove();
-                    $.mobile.activePage.trigger('pageinit');
+                    activeSql = "update NetDroidRules set useToken=1 where id=?";
+                    tx.executeSql(activeSql, [entryId], function (tx1, results1) {
+                        if (!results1 || results1.rowsAffected == 0)return;
+                        var selectSql = "select ip,netmask,gateway,dns1,dns2 from NetDroidRules where status=1 and id=?";
+                        tx.executeSql(selectSql, [entryId], function (tx2, results2) {
+                            if (!results2 || results2.rows.length == 0)return;
+                            var entry = results2.rows.item(0);
+                            window.plugins.NetDroidPlugin.setConfig(function (result) {
+                                if (!result)return;
+                                localStorage.setItem('use_static_ip','Static');
+                            }, function (errMessage) {
+                                alert(errMessage);
+                            }, entry);
+                        }, $.netDroidDB.errFun);
+                        refreshPage();
+                    });
+                }, $.netDroidDB.errFun);
+            });
+            $('#btnUseAuto').bind('click', function () {
+                window.plugins.NetDroidPlugin.setWifiUse(function (result) {
+                    if (!result)return;
+                    var db = $.netDroidDB.db;
+                    db.transaction(function (tx) {
+                        var unAcitveAllSql = "update NetDroidRules set useToken=0 where useToken=1";
+                        tx.executeSql(unAcitveAllSql, [], function (tx, results) {
+                            if (!results || results.rowsAffected == 0)return;
+                            localStorage.setItem('use_static_ip','Auto');
+                            refreshPage();
+                        }, $.netDroidDB.errFun);
+                    });
+                }, function (errMessage) {
+                    alert(errMessage);
                 });
             });
-        });
+        }).bind('pageshow',function(){
+                    var db = $.netDroidDB.db;
+                    db.transaction(queryDB, $.netDroidDB.errFun);
+                });
 
         function queryDB(tx) {
+            if (localStorage.getItem('use_static_ip').toLocaleLowerCase() == 'static') {
+                var checkSql = "select 1 from NetDroidRules where status=1 and ssidName=?",
+                        ssidName = localStorage.getItem('ssid');
+                tx.executeSql(checkSql, [ssidName], function (tx1, results) {
+                    if (!results || results.rows.length == 0)return;
+                    tx.executeSql('update NetDroidRules set useToken=1 where ssidName=?', [ssidName]);
+                }, $.netDroidDB.errFun);
+                $('#btnUseAuto').show();
+            }
+            else {
+                $('#btnUseAuto').hide();
+            }
             tx.executeSql('select 1 from sqlite_master where type="table" and name="NetDroidRules"',
                     [], function (tx, results) {
                         if (!results || results.rows.length == 0)return;
@@ -62,11 +106,12 @@
         function readRules(tx, results) {
             if (!results || results.rows.length == 0)return;
             var $settingList = $('#settingList');
+            $settingList.children().remove();
             for (var i = 0, j = results.rows.length; i < j; i++) {
                 var entry = results.rows.item(i), appendHtml;
                 appendHtml = '<li data-role="list-divider">' + entry.ssidName;
                 if (entry.useToken == 1)
-                    appendHtml += '<span class="ui-li-count">Current</span>';
+                    appendHtml += '<span class="ui-li-count">Current Use</span>';
                 else
                     appendHtml += '<button entryId="' + entry.id + '" class="list-divider-button" data-inline="true" data-mini="true">Active it</button>';
 
@@ -79,6 +124,10 @@
             }
             $settingList.find('.list-divider-button').button();
             $settingList.listview('refresh');
+        }
+
+        function refreshPage() {
+            $.mobile.activePage.trigger('pageshow');
         }
     </script>
 </div>

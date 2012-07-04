@@ -20,7 +20,7 @@
 <body>
 <div id="rulePage" data-role="page" data-theme="b">
     <div data-role="header" data-theme="b" data-position="fixed">
-        <h1>Add Rule</h1>
+        <h1 id="rulePageHeader">Add Rule</h1>
     </div>
     <div data-role="content" data-theme="b">
         <form id="ruleForm" method="post">
@@ -113,6 +113,7 @@
             var id = getParamByName('id');
             if($(ui.prevPage).attr('id') == 'settingPage' && id){
                 readRule(id);
+                $('#rulePageHeader').text('Edit Rule');
             }
         });
 
@@ -190,7 +191,7 @@
         function readRule(id){
             var db = $.netDroidDB.db;
             db.transaction(function(tx){
-                tx.executeSql("select * from NetDroidRules where status=1 and id="+id,[],function(tx,results){
+                tx.executeSql("select * from NetDroidRules where status=1 and id=?",[id],function(tx,results){
                     if (!results || results.rows.length == 0)return;
                     var ruleEntry = results.rows.item(0);
                     $('#hidSSIDName').val(ruleEntry.ssidName);
