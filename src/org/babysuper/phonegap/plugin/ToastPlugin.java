@@ -28,7 +28,7 @@ public class ToastPlugin extends Plugin {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(ctx.getActivity(), showText, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(cordova.getActivity(), showText, Toast.LENGTH_SHORT).show();
                 }
             });
             result = new PluginResult(PluginResult.Status.OK, true);

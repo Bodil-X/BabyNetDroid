@@ -7,15 +7,15 @@
     <meta name="apple-mobile-web-app-capable" content="yes"/>
 
     <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
-    <script type="text/javascript" charset="utf-8" src="../js/cordova-1.9.0.js"></script>
-    <script type="text/javascript" charset="utf-8" src="../js/NetDroidPlugin.js"></script>
-    <script type="text/javascript" charset="utf-8" src="../js/ToastPlugin.js"></script>
-    <script type="text/javascript" charset="utf-8" src="../js/jquery.mobile-1.1.0.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/cordova-2.0.0.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/plugins/NetDroidPlugin.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/plugins/ToastPlugin.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/jquery.mobile-1.1.1.min.js"></script>
     <script type="text/javascript" charset="utf-8" src="../js/jquery.validate.min.js"></script>
     <script type="text/javascript" src="../js/jquery.input-ip-address-control-1.0.js"></script>
     <script type="text/javascript" src="../js/netDroidDB.js"></script>
 
-    <link type="text/css" href="../css/jquery.mobile-1.1.0.min.css" rel="stylesheet"/>
+    <link type="text/css" href="../css/jquery.mobile-1.1.1.min.css" rel="stylesheet"/>
 </head>
 <body>
 <div id="rulePage" data-role="page" data-theme="b">
@@ -124,7 +124,7 @@
 
         function scanSSIDs() {
             $.mobile.showPageLoadingMsg('b', 'Scanning the SSID info,please waiting...',true);
-            window.plugins.NetDroidPlugin.getSSIDs(function (ssidInfos) {
+            NetDroidPlugin.getSSIDs(function (ssidInfos) {
                 if (ssidInfos) {
                     for (var ssidName in ssidInfos) {
                         var ssidInfo = ssidInfos[ssidName];
@@ -164,7 +164,7 @@
         function createDbSucc() {
             var db = $.netDroidDB.db;
             db.transaction(insertRule, errorCB, function (tx, results) {
-                window.plugins.ToastPlugin.makeText('Save Success.');
+                ToastPlugin.makeText('Save Success.');
                 $.mobile.changePage('setting.html', {
                     transition:'flow',
                     changeHash:false

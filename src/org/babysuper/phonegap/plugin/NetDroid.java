@@ -96,7 +96,7 @@ public class NetDroid extends Plugin {
     }
 
     private JSONObject getDHCPJson() {
-        wifiManger = (WifiManager) ctx.getActivity().getSystemService(Context.WIFI_SERVICE);
+        wifiManger = (WifiManager) cordova.getActivity().getSystemService(Context.WIFI_SERVICE);
         DhcpInfo dhcpInfo = wifiManger.getDhcpInfo();
         WifiInfo wifiInfo = wifiManger.getConnectionInfo();
         JSONObject dhcpJson = new JSONObject();
@@ -110,7 +110,7 @@ public class NetDroid extends Plugin {
             dhcpJson.put("serverAddress", intToIp(dhcpInfo.serverAddress));
             dhcpJson.put("mac", String.valueOf(wifiInfo.getMacAddress()));
             dhcpJson.put("ssid", wifiInfo.getSSID());
-            int useStatic = Settings.System.getInt(ctx.getActivity().getContentResolver(), Settings.System.WIFI_USE_STATIC_IP);
+            int useStatic = Settings.System.getInt(cordova.getActivity().getContentResolver(), Settings.System.WIFI_USE_STATIC_IP);
             dhcpJson.put("use_static_ip", useStatic == 1 ? "Static" : "Auto");
         } catch (JSONException ex) {
             Log.e("getDHCPInfo Error", "JSON Error:" + ex.getMessage());
@@ -156,9 +156,9 @@ public class NetDroid extends Plugin {
 
     private void regSSIDListener() {
         if (wifiManger == null)
-            wifiManger = (WifiManager) ctx.getActivity().getSystemService(Context.WIFI_SERVICE);
+            wifiManger = (WifiManager) cordova.getActivity().getSystemService(Context.WIFI_SERVICE);
         if (!isRegSSIDScan) {
-            ctx.getActivity().registerReceiver(new BroadcastReceiver() {
+            cordova.getActivity().registerReceiver(new BroadcastReceiver() {
                 public void onReceive(Context context, Intent intent) {
                     wifiResultList = wifiManger.getScanResults();
                     recordSize = wifiResultList.size();
@@ -169,7 +169,8 @@ public class NetDroid extends Plugin {
     }
 
     private boolean setDhcpConfig(String ip, String netmask, String gateway, String dns1, String dns2) {
-        final ContentResolver contentResolver = ctx.getActivity().getContentResolver();
+
+        final ContentResolver contentResolver = cordova.getActivity().getContentResolver();
         Settings.System.putInt(contentResolver, Settings.System.WIFI_USE_STATIC_IP, 1);
         Settings.System.putString(contentResolver, Settings.System.WIFI_STATIC_IP, ip);
         Settings.System.putString(contentResolver, Settings.System.WIFI_STATIC_NETMASK, netmask);
@@ -181,7 +182,7 @@ public class NetDroid extends Plugin {
     }
 
     private boolean setWifiUse(int value) {
-        final ContentResolver contentResolver = ctx.getActivity().getContentResolver();
+        final ContentResolver contentResolver = cordova.getActivity().getContentResolver();
         Settings.System.putInt(contentResolver, Settings.System.WIFI_USE_STATIC_IP, value);
 
         return true;

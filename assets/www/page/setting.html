@@ -7,13 +7,13 @@
     <meta name="apple-mobile-web-app-capable" content="yes"/>
 
     <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
-    <script type="text/javascript" charset="utf-8" src="../js/cordova-1.9.0.js"></script>
-    <script type="text/javascript" charset="utf-8" src="../js/NetDroidPlugin.js"></script>
-    <script type="text/javascript" charset="utf-8" src="../js/ToastPlugin.js"></script>
-    <script type="text/javascript" charset="utf-8" src="../js/jquery.mobile-1.1.0.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/cordova-2.0.0.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/plugins/NetDroidPlugin.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/plugins/ToastPlugin.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../js/jquery.mobile-1.1.1.min.js"></script>
     <script type="text/javascript" src="../js/netDroidDB.js"></script>
 
-    <link type="text/css" href="../css/jquery.mobile-1.1.0.min.css" rel="stylesheet"/>
+    <link type="text/css" href="../css/jquery.mobile-1.1.1.min.css" rel="stylesheet"/>
     <style type="text/css">
     </style>
 </head>
@@ -51,7 +51,7 @@
                         tx.executeSql(selectSql, [entryId], function (tx2, results2) {
                             if (!results2 || results2.rows.length == 0)return;
                             var entry = results2.rows.item(0);
-                            window.plugins.NetDroidPlugin.setConfig(function (result) {
+                            NetDroidPlugin.setConfig(function (result) {
                                 if (!result)return;
                                 localStorage.setItem('use_static_ip','Static');
                             }, function (errMessage) {
@@ -63,7 +63,7 @@
                 }, $.netDroidDB.errFun);
             });
             $('#btnUseAuto').bind('click', function () {
-                window.plugins.NetDroidPlugin.setWifiUse(function (result) {
+                NetDroidPlugin.setWifiUse(function (result) {
                     if (!result)return;
                     var db = $.netDroidDB.db;
                     db.transaction(function (tx) {

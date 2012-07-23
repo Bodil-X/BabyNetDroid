@@ -38,7 +38,7 @@
     </content>
     <orderEntry type="jdk" jdkName="Android 2.3.3 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="cordova-1.9.0" level="project" />
+    <orderEntry type="library" name="cordova-2.0.0" level="project" />
   </component>
 </module>
 
