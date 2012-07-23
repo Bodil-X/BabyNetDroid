@@ -11,7 +11,11 @@ import org.apache.cordova.api.IPlugin;
 public class MainActivity extends Activity implements CordovaInterface
 {
     CordovaWebView cwv;
-    /** Called when the activity is first created. */
+
+    private IPlugin activityResultCallback;
+    private Object activityResultKeepRunning;
+    private Object keepRunning;
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -24,11 +28,26 @@ public class MainActivity extends Activity implements CordovaInterface
 
     @Override
     public void startActivityForResult(IPlugin iPlugin, Intent intent, int i) {
+        this.activityResultCallback = iPlugin;
+        this.activityResultKeepRunning = this.keepRunning;
+        if(iPlugin != null)
+            this.keepRunning = false;
+
         super.startActivityForResult(intent,i);
     }
 
     @Override
     public void setActivityResultCallback(IPlugin iPlugin) {
+        this.activityResultCallback = iPlugin;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent){
+        super.onActivityResult(requestCode, resultCode, intent);
+        IPlugin callback = this.activityResultCallback;
+        if (callback != null) {
+            callback.onActivityResult(requestCode, resultCode, intent);
+        }
     }
 
     @Override
@@ -46,7 +65,9 @@ public class MainActivity extends Activity implements CordovaInterface
     }
 
     @Override
-    public Object onMessage(String s, Object o) {
+    public Object onMessage(String id, Object data) {
+        if("exit".equals(id))
+            super.finish();
         return null;
     }
 }
